@@ -1,0 +1,5 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.github.config.DubboConfigurationApplicationContextInitializer
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.github.config.DubboAutoConfiguration,\
+com.github.config.DubboXMLConfiguration

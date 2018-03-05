@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.github.config.DynamicDataSourceConfig,\
+com.github.config.MyBatisConfig,\
+com.github.config.MyBatisMapperScannerConfig

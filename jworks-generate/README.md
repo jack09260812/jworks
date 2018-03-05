@@ -1,0 +1,31 @@
+- MBG生命周期
+````
+使用默认构造器创建；
+setContext方法调用，注入生成器上下文；
+setProperties方法调用，传入在配置文件中插件的参数；
+validate方法调用，该方法一般用于验证传给参数的正确性，如果该方法返回false，则该插件结束执行；
+针对context中配置的每一个table：
+initialized方法被调用，用于初始化操作，传入IntrospectedTable；
+Java Client Methods被调用（这个地方需要注意一下，这里的Java Client Method调用和下面的Model Method，SQL Map Method的调用的前提是针对该table配置是分别需要生成client，model和SQL的，如果一个table不需要生成java client，那么这个阶段就忽略，下面两个阶段同理）:
+clientXXXMethodGenerated(Method, TopLevelClass, IntrospectedTable)方法调用（比如clientCountByExampleMethodGenerated方法），这些方法其实就是对应Java DAO中生成对应方法时调用（那个TopLevelClass其实就是对Java类的DOM封装）【注意】，这些方法主要针对ibatis；
+clientXXXMethodGenerated(Method, Interface, IntrospectedTable)方法调用（比如clientCountByExampleMethodGenerated方法），这些方法其实就是对应Java中Mapper生成对应方法时调用；通过返回true和false来代表该方法是否需要生成；
+-clientGenerated(Interface, TopLevelClass, IntrospectedTable)方法调用；
+Model Methods被调用：
+对每一个字段依次调用modelFieldGenerated, modelGetterMethodGenerated, modelSetterMethodGenerated方法（就不一个一个详细解释了，看名字就看得出来在干嘛）
+modelExampleClassGenerated(TopLevelClass, IntrospectedTable)：用于创建XXXExample类；TopLevelClass参数同理，也是就是生成XXXExample类的DOM；
+modelPrimaryKeyClassGenerated(TopLevelClass, IntrospectedTable)：用于创建那个主键（KeyClass）类；
+modelBaseRecordClassGenerated(TopLevelClass, IntrospectedTable)：用于创建那个Record class（主Class）类；
+modelRecordWithBLOBsClassGenerated(TopLevelClass, IntrospectedTable)：用于创建包含所有BLOB列的类；
+-如果要修改这些类的生成结果，就是去修改TopLevelClass这个DOM的结构而已；
+SQL Map Methods：这些方法主要是在生成SQL 那个mapper.xml文件时调用；
+sqlMapXXXElementGenerated(XmlElement, IntrospectedTable)，比如sqlMapDeleteByExampleElementGenerated，其实就是在XML文件中生成对应SQL元素的时候调用该方法，我们要修改生成的SQL或者元素内容，其实就是修改那个XmlElement，XmlElement是MBG对XML文件的DOM封装；
+sqlMapDocumentGenerated(Document, IntrospectedTable)
+sqlMapDocument(GeneratedXmlFile, IntrospectedTable)，这两个方法都是最后生成XML的时候调用；
+contextGenerateAdditionalJavaFiles(IntrospectedTable)方法调用（生成额外的Java文件，MBG自己是没有实现这个方法的，提供给插件一个扩展机会）；
+contextGenerateAdditionalXmlFiles(IntrospectedTable)方法调用（同理，生成额外的XML文件，MBG自己是没有实现这个方法的，提供给插件一个扩展机会）
+contextGenerateAdditionalJavaFiles()方法调用，同contextGenerateAdditionalJavaFiles(IntrospectedTable)方法，只是没有参数而已；
+-contextGenerateAdditionalXmlFiles()方法调用，同contextGenerateAdditionalXmlFiles(IntrospectedTable)方法，只是没有提供参数；
+````
+
+http://www.cnblogs.com/kstrive/p/5911873.html
+http://blog.csdn.net/shadowsick/article/details/53734608
